@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Programa de Algebra Lineal</title>
+	<link rel="stylesheet" href="css/all-browsers.min.css">
+	<link rel="stylesheet" href="css/entypo-webfont-style.css">
+	<link rel="stylesheet" href="css/print.min.css">
+	<link rel="stylesheet" href="css/480.min.css">
+	<link rel="stylesheet" href="css/768.min.css">
+	<link rel="stylesheet" href="css/992.min.css">
+	<link rel="stylesheet" href="css/1200.min.css">
+	<link rel="stylesheet" href="css/2x.min.css">
+	<link href='http://fonts.googleapis.com/css?family=Open+Sans:300' rel='stylesheet' type='text/css'>
+	<link rel="stylesheet" href="css/additional-styles.min.css">
+ 	<script src="js/modernizr.custom.js"></script> 
+ 	<script src="js/jquery.min.js"></script> 
+	<script type="text/javascript">var cmsClient={};cmsClient.IsMobile=false;cmsClient.IsTablet=false;cmsClient.url='/';cmsClient.CDNRoot='/';cmsClient.CDNMediaRoot='/';cmsClient.LocalSF='/';</script>
+</head>
+<body>
+	<section role="main" id="main">
+	<hgroup id="main-title" class="thin">
+		<div align=center><h1>Graficas de dispersion</h1></div>
+	<p></p>
+	<details class="margin-bottom" open>
+		<h3>Datos del ejercicio</h3>
+	<div class="standard-tabs margin-bottom">
+	<ul class="tabs">
+		<li class="active">
+		<a href="#tabAddXY">Datos para X & Y</a>
+		</li>
+		<li>
+		<a href="#tabAddMultiXY">Agregar varios datos a la vez</a>
+		</li>
+	</ul>
+	<div class="tabs-content">
+	<div id="tabAddXY" class="with-padding">
+		<p class="inline-small-label button-height">
+			<label for="xval" class="label">Valor para X</label>
+			<input type="number" name="xval" id="xval" class="input" value=""></p>
+		<p class="inline-small-label button-height">
+		<label for="yval" class="label">Valor para Y</label>
+		<input type="number" name="yval" id="yval" class="input" value=""></p>
+	<button type="button" class="button glossy mid-margin-right" onclick="javascript:graphXY.addInputRow()">
+		Agregar
+	</button>
+	</div>
+	<div id="tabAddMultiXY" class="with-padding">
+	<textarea class="input full-width autoexpanding" id="dataLines" style="min-height:50px;"></textarea><br/>
+	<button type="button" class="button blue-gradient" onclick="javascript:graphXY.addRows()">
+	Agregar datos
+	</button>
+	</div>
+	</div>
+	</div>
+	</details>
+	<details class="margin-bottom" open>
+		<h3>Generar datos o calculos y grafica</h3>
+	<div id="regression">
+	<div class="with-padding">
+	<button id="reCalBtn" type="button" class="button green-gradient" onclick="javascript:graphXY.reCal()">
+		Generar tablas, resolver ecuaciones y graficar
+	</button>
+	<button type="button" class="button blue-gradient" onclick="javascript:graphXY.sampleDemo()">
+		Crear ejercicio aleatorio
+	</button>
+	<button type="button" class="button red-gradient" onclick="javascript:graphXY.clearData()">
+		Limpiar
+	</button>
+	</div>
+	</div>
+	</details>
+	<details class="margin-bottom" open>
+		<h3>Tabla de valores</h3>
+	<table class="table" id="XYDataTable">
+	<thead>
+	<tr>
+		<th scope="col">Valor de X</th>
+		<th scope="col">Valor de Y</th>
+		<th scope="col" width="80">Acciones</th>
+	</tr>
+	</thead>
+	<tfoot>
+	<tr>
+	<td colspan="3" id="XYDataTableFooter"></td>
+	</tr>
+	</tfoot>
+	<tbody></tbody>
+	</table>
+	</details>
+	<br/>
+	<details class="margin-bottom" open>
+		<h3>Tabla de sumatorias</h3>
+	<table class="table" id="RegressionDataTable">
+	<thead>
+	<tr>
+	<th scope="col">x</th>
+	<th scope="col">y</th>
+	<th scope="col">`x\timesy`</th>
+	<th scope="col">`x^2`</th>
+	<th scope="col">`y^2`</th>
+	</tr>
+	</thead>
+	<tfoot>
+	<tr>
+	<td id="RegFootX"></td>
+	<td id="RegFootY"></td>
+	<td id="RegFootXY"></td>
+	<td id="RegFootXSQ"></td>
+	<td id="RegFootYSQ"></td>
+	</tr>
+	</tfoot>
+	<tbody></tbody>
+	</table>
+	</details>
+	<br/>
+	<details class="margin-bottom" open>
+	<h3>Calculos con ecuaciones</h3>
+	<div class="with-padding">
+	<div id="reg-cal-data">
+	Calculamos el coeficiente de correlacion (r),<br/><br/>
+	`r = \frac{\sum_{i=1}^{n} x_iy_i-\frac{\sum_{i=1}^n x_i\sum_{i=1}^n y_i}n}{(\sum_{i=1}^{n} x_i^2-\frac{1}n*(\sum_{i=1}^n x_i)^2)*(\sum_{i=1}^{n} y_i^2-\frac{1}n*(\sum_{i=1}^n y_i)^2)}`<br/><br/>
+	`r = \frac{[SUMXY]-\frac{[SUMX]\times[SUMY]}[NCOUNT]}{(([SUMXSQ])-\frac{1}[NCOUNT]*([SUMX]^2)*([SUMYSQ]-\frac{1}[NCOUNT]*([SUMY]^2)}`<br/><br/>
+	`r = [CORRELACION]`
+	<br/><br/><br/>
+	Calculamos la pendiente (m),<br/><br/>
+	`m = \frac{n\sum_{i=1}^{n} x_iy_i-\sum_{i=1}^n x_i\sum_{i=1}^n y_i}{n\sum_{i=1}^{n} x_i^2-(\sum_{i=1}^n x_i)^2}`<br/><br/>
+	`m = \frac{[NCOUNT]\times[SUMXY] - [SUMX]\times[SUMY]}{[NCOUNT]\times[SUMXSQ] - ([SUMX])^2}`<br/><br/>
+	`m = [SLOPE]`
+	<br/><br/><br/>
+	Calculamos el corte (b),<br/><br/>
+	`b = \frac{\sum_{i=1}^{n} y_i - m\sum_{i=1}^{n} x_i}{n}`<br/><br/>
+	`b = \frac{[SUMY] - [SLOPE]\times[SUMX]}{[NCOUNT]}`<br/><br/>
+	`b = [INTERCEPT]`
+	<br/><br/><br/>
+	Regression / Line of Best fit linear equation,<br/><br/>
+	`y = m\timesx + b`<br/><br/>
+	`y = [SLOPE]\timesx + ([INTERCEPT])`
+	</div>
+	</div>
+	</details>
+	<br/>
+	<details class="margin-bottom" open>
+	<h3>Grafica</h3><div id="regression"><div id="bfGraph"></div></div>
+	</details>
+	<details class="details margin-bottom" open>
+	<br/>
+	<br/>
+	<h4 align=center>Creado por Giovanny Gongora, Eliana Guzman, Julian Rodriguez</h4>
+	<div class="with-padding"><div id="unc-cal-data"></div></div>
+	</details></div>
+ <script type="text/javascript">
+ 	jQuery("#bfGraph").height(500);
+ 	var graphXY={};
+ 	graphXY.isRunning=false;
+ 	graphXY.data={};
+ 	graphXY.tObj=null;
+ 	graphXY.flotr=null;
+ 	graphXY.sx=0;
+ 	graphXY.sy=0;
+ 	graphXY.sxy=0;
+ 	graphXY.sxsq=0;
+ 	graphXY.sysq=0;
+ 	graphXY.xmean=0;
+ 	graphXY.ymean=0;
+ 	graphXY.b=0;
+ 	graphXY.m=0;
+ 	graphXY.r=0;
+ 	graphXY.n=0;
+ 	graphXY.ybmx=0;
+ 	graphXY.sdy=0;
+ 	graphXY.sdysq=0;
+ 	graphXY.ucd=0;
+ 	graphXY.nm=0;
+ 	graphXY.nmsq=0;
+ 	graphXY.nb=0;
+ 	graphXY.nbsq=0;
+ 	graphXY.regCalBlock=jQuery("#reg-cal-data").html();
+ 	jQuery("#reg-cal-data").html("");
+ 	graphXY.uncCalBlock=jQuery("#unc-cal-data").html();
+ 	jQuery("#unc-cal-data").html("");
+ 	graphXY.init=function(){
+ 		jQuery("#XYDataTable").dataTable({
+ 			bPaginate:false,
+ 			bLengthChange:false,
+ 			bFilter:false,
+ 			bSort:false,
+ 			bInfo:false,
+ 			bAutoWidth:false
+ 			}
+ 		);
+ 		jQuery("#RegressionDataTable").dataTable({
+ 			bPaginate:false,
+ 			bLengthChange:false,
+ 			bFilter:false,
+ 			bSort:false,
+ 			bInfo:false,
+ 			bAutoWidth:false
+ 			}
+ 		)
+ 	};
+ 	graphXY.calRegression=function(){
+ 		graphXY.isRunning=true;
+ 		graphXY.sx=0;
+ 		graphXY.sy=0;
+ 		graphXY.sxy=0;
+ 		graphXY.sxsq=0;
+ 		graphXY.sysq=0;
+ 		graphXY.xmean=0;
+ 		graphXY.ymean=0;
+ 		graphXY.b=0;
+ 		graphXY.m=0;
+ 		graphXY.r=0;
+ 		graphXY.n=0;
+ 		jQuery("#reg-cal-data").html("");
+ 		jQuery("#RegressionDataTable").dataTable().fnClearTable();
+ 		jQuery("#RegFootX").html("");
+ 		jQuery("#RegFootY").html("");
+ 		jQuery("#RegFootXY").html("");
+ 		jQuery("#RegFootXSQ").html("");
+ 		jQuery("#RegFootYSQ").html("");
+ 		if(Object.keys(graphXY.data).length>1){
+ 			var a,c;
+ 			for(var b in graphXY.data){
+ 				a=parseFloat(b);
+ 				c=graphXY.data[b];
+ 				graphXY.sx+=a;
+ 				graphXY.sy+=c;
+ 				graphXY.sxy+=a*c;
+ 				graphXY.sxsq+=Math.pow(a,2);
+ 				graphXY.sysq+=Math.pow(c,2);
+ 				graphXY.n++;
+ 				jQuery("#RegressionDataTable").dataTable().fnAddData([a,c,(a*c).toFixed(2),Math.pow(a,2).toFixed(2),Math.pow(c,2).toFixed(2)])
+ 				}
+ 				graphXY.xmean=graphXY.sx/graphXY.n;
+ 				graphXY.ymean=graphXY.sy/graphXY.n;
+ 				graphXY.m=((graphXY.n*graphXY.sxy)-(graphXY.sx*graphXY.sy))/((graphXY.n*graphXY.sxsq)-(Math.pow(graphXY.sx,2)));
+ 				graphXY.b=graphXY.ymean-(graphXY.m*graphXY.xmean);
+ 				graphXY.r=(graphXY.sxy-((graphXY.sx*graphXY.sy)/graphXY.n))/(Math.sqrt((graphXY.sxsq-((1/graphXY.n)*(Math.pow(graphXY.sx,2))))*(graphXY.sysq-((1/graphXY.n)*(Math.pow(graphXY.sy,2))))));
+ 				for(var b in graphXY.data){
+ 					a=parseFloat(b);
+ 					c=graphXY.data[b];
+ 				graphXY.ybmx+=Math.pow(c-graphXY.b-graphXY.m*a,2)
+ 			}
+ 			if(graphXY.n>2){
+ 				graphXY.sdysq=graphXY.ybmx/(graphXY.n-2);
+ 				graphXY.sdy=Math.sqrt(graphXY.sdysq);
+ 				graphXY.ucd=graphXY.n*graphXY.sxsq-Math.pow(graphXY.sx,2);
+ 				graphXY.nmsq=graphXY.n*graphXY.sdysq;graphXY.nbsq=graphXY.sdysq*graphXY.sxsq;
+ 				graphXY.sdmsq=graphXY.nmsq/graphXY.ucd;graphXY.sdm=Math.sqrt(graphXY.sdmsq);
+ 				graphXY.sdbsq=graphXY.nbsq/graphXY.ucd;graphXY.sdb=Math.sqrt(graphXY.sdbsq)
+ 				}
+ 				graphXY.plot(document.getElementById("bfGraph"))
+ 				}
+ 				graphXY.updateUI();
+ 				clearTimeout(graphXY.tObj);
+ 				graphXY.isRunning=false};
+ 				graphXY.updateUI=function(){
+ 					jQuery("#RegFootX").html("`sum_{i=1}^{n} x_i = "+graphXY.sx.toFixed(2)+"`");
+ 					jQuery("#RegFootY").html("`sum_{i=1}^{n} y_i = "+graphXY.sy.toFixed(2)+"`");
+ 					jQuery("#RegFootXY").html("`sum_{i=1}^{n} x_i.y_i = "+graphXY.sxy.toFixed(2)+"`");
+ 					jQuery("#RegFootXSQ").html("`sum_{i=1}^{n} x_i^2 = "+graphXY.sxsq.toFixed(2)+"`");
+ 					jQuery("#RegFootYSQ").html("`sum_{i=1}^{n} y_i^2 = "+graphXY.sysq.toFixed(2)+"`");
+ 					var a=graphXY.regCalBlock;
+ 					a=a.replace(/\[XMEAN\]/g,
+ 					graphXY.xmean.toFixed(2));
+ 					a=a.replace(/\[YMEAN\]/g,
+ 					graphXY.ymean.toFixed(2));
+ 					a=a.replace(/\[NCOUNT\]/g,
+ 					graphXY.n);
+ 					a=a.replace(/\[SUMX\]/g,
+ 					graphXY.sx.toFixed(2));
+ 					a=a.replace(/\[SUMY\]/g,
+ 					graphXY.sy.toFixed(2));
+ 					a=a.replace(/\[SUMXY\]/g,
+ 					graphXY.sxy.toFixed(2));
+ 					a=a.replace(/\[SUMXSQ\]/g,
+ 					graphXY.sxsq.toFixed(2));
+ 					a=a.replace(/\[SUMYSQ\]/g,
+ 					graphXY.sysq.toFixed(2));
+ 					a=a.replace(/\[INTERCEPT\]/g,
+ 					graphXY.b.toFixed(2));
+ 					a=a.replace(/\[SLOPE\]/g,
+ 					graphXY.m.toFixed(2));
+ 					a=a.replace(/\[CORRELACION\]/g,
+ 					graphXY.r.toFixed(2));
+ 					jQuery("#reg-cal-data").html(a);
+ 					a=graphXY.uncCalBlock;
+ 					a=a.replace(/\[NCOUNT\]/g,
+ 					graphXY.n);
+ 					a=a.replace(/\[SUMX\]/g,
+ 					graphXY.sx.toFixed(2));
+ 					a=a.replace(/\[SUMXSQ\]/g,
+ 					graphXY.sxsq.toFixed(2));
+ 					a=a.replace(/\[SUMYSQ\]/g,
+ 					graphXY.sysq.toFixed(2));
+ 					a=a.replace(/\[YBMX\]/g,
+ 					graphXY.ybmx.toFixed(2));
+ 					a=a.replace(/\[SDYSQ\]/g,
+ 					graphXY.sdysq.toFixed(4));
+ 					a=a.replace(/\[SDY\]/g,
+ 					graphXY.sdy.toFixed(4));
+ 					a=a.replace(/\[UCD\]/g,
+ 					graphXY.ucd.toFixed(4));
+ 					a=a.replace(/\[NMSQ\]/g,
+ 					graphXY.nmsq.toFixed(4));
+ 					a=a.replace(/\[NBSQ\]/g,
+ 					graphXY.nbsq.toFixed(4));
+ 					a=a.replace(/\[SDMSQ\]/g,
+ 					graphXY.sdmsq.toFixed(4));
+ 					a=a.replace(/\[SDM\]/g,
+ 					graphXY.sdm.toFixed(4));
+ 					a=a.replace(/\[SDBSQ\]/g,
+ 					graphXY.sdbsq.toFixed(4));
+ 					a=a.replace(/\[SDB\]/g,
+ 					graphXY.sdb.toFixed(4));
+ 					jQuery("#unc-cal-data").html(a);
+ 					MathJax.Hub.Queue(["Typeset",MathJax.Hub,"RegFootX"],["Typeset",MathJax.Hub,"RegFootY"],["Typeset",MathJax.Hub,"RegFootXY"],["Typeset",MathJax.Hub,"RegFootXSQ"],["Typeset",MathJax.Hub,"RegFootYSQ"],["Typeset",MathJax.Hub,"reg-cal-data"],["Typeset",MathJax.Hub,"unc-cal-data"])
+ 					};
+ 					graphXY.clearData=function(){
+ 						jQuery.modal.confirm("Estas seguro de borrar todas las coordenadas que has ingresado?",
+ 						function(){
+ 							jQuery("#XYDataTable").dataTable().fnClearTable();
+ 							jQuery("#RegressionDataTable").dataTable().fnClearTable();
+ 							graphXY.data={};
+ 							graphXY.flotr={};
+ 							jQuery("#bfGraph").html("");
+ 							graphXY.sx=0;
+ 							graphXY.sy=0;
+ 							graphXY.sxy=0;
+ 							graphXY.sxsq=0;
+ 							graphXY.sysq=0;
+ 							graphXY.xmean=0;
+ 							graphXY.ymean=0;
+ 							graphXY.b=0;
+ 							graphXY.m=0;
+ 							graphXY.r=0;
+ 							graphXY.n=0;
+ 							jQuery("#reg-cal-data").html("");
+ 							jQuery("#RegFootX").html("");
+ 							jQuery("#RegFootY").html("");
+ 							jQuery("#RegFootXY").html("");
+ 							jQuery("#RegFootXSQ").html("");
+ 							jQuery("#RegFootYSQ").html("")
+ 						},
+ 						function(){})};
+ 							graphXY.createRandomSeries=function(){
+ 								var c,a,b;
+ 								for(c=0;c<20;c++){
+ 									a=c;
+ 									b=(a+Math.random()*10-17).toFixed(2);
+ 									graphXY.addRow(a,b)}};
+ 									graphXY.sampleDemo=function(b,a){
+ 										jQuery.modal.confirm("Realmente quiere generar numeros/coordenadas para X & Y aleatorias para llenar la tabla?",
+ 										function(){
+ 											notify("Generando...","Se estan generando los datos para la tabla",{
+ 												hPos:"center",
+ 												vPos:"bottom",
+ 												icon:cms.imgPath+"/dialog-information-mid.png",
+ 												iconOutside:false,
+ 												showCloseOnHover:false,
+ 												autoClose:true,
+ 												closeDelay:3
+ 												});
+ 												graphXY.createRandomSeries();
+ 												graphXY.calRegression()
+ 											},
+ 											function(){})
+ 									};
+ 									graphXY.reCal=function(){
+ 									graphXY.calRegression()};
+ 									graphXY.delRow=function(b,a){
+ 										jQuery.modal.confirm("Esta seguro de borrar estos campos?",
+ 										function(){
+ 											delete graphXY.data[a];
+ 											var c=jQuery(b).closest("tr").get(0);
+ 											jQuery("#XYDataTable").dataTable().fnDeleteRow(
+ 											jQuery("#XYDataTable").dataTable().fnGetPosition(c))},
+ 											function(){})
+ 									};
+ 									graphXY.addInputRow=function(){
+ 										var a,b;
+ 										a=parseFloat(jQuery("#xval").val());
+ 										b=parseFloat(jQuery("#yval").val());
+ 											if(!isNaN(a)&&!isNaN(b)){
+ 												graphXY.addRow(a,b);
+ 												jQuery("#xval").val("");
+ 												jQuery("#yval").val("");
+ 												jQuery("#xval").select()}};
+ 												graphXY.addRows=function(){
+ 													var b=0;
+ 													var a=jQuery("#dataLines").val().split(/[\n\r]+/g);
+ 													jQuery.each(a,function(e,f){
+ 														var d=jQuery.trim(f);
+ 															if(d!==""){
+ 																var g=d.split(/[,\s]+/g);
+ 																if(g.length>1){var c,h;
+ 																c=parseFloat(g[0]);
+ 																h=parseFloat(g[1]);
+ 																if(!isNaN(c)&&!isNaN(h)){
+ 																	graphXY.addRow(c,h);
+ 																						b++
+ 																	}
+ 															}
+ 												}
+ 											});
+ 											if(b>0){
+ 												cms.infoBox("Generando",b+" datos agregados, de clic en el boton [Generar calculos y grafica] para que el programa realice el resto del ejercicio.")
+ 											}
+ 										};
+ 										graphXY.addRow=function(a,b){
+ 											graphXY.data[parseFloat(a)]=parseFloat(b);
+ 											jQuery("#XYDataTable").dataTable().fnAddData([a,b,'<span class="button-group compact"><a href="javascript:void(0)" onclick="javascript:graphXY.delRow(this,'+a+')" class="button icon-trash with-tooltip" title="Eliminar"></a></span>']);
+ 											jQuery("#XYDataTableFooter").html("Cantidad de datos: "+Object.keys(graphXY.data).length)
+ 										};
+ 										graphXY.plot=function(d){
+ 											var c=[],b=[],a,f;
+ 											for(var e in graphXY.data){
+ 												a=parseFloat(e);
+ 												f=graphXY.data[e];
+ 												c.push([a,f]);
+ 												b.push([a,graphXY.b+graphXY.m*a])
+ 											}
+ 										graphXY.flotr=Flotr.draw(d,[{data:c,label:"Datos (X,Y)",points:{show:false},markers:{show:false}},{data:b,label:"Y = "+graphXY.b.toFixed(2)+" + "+graphXY.m.toFixed(2)+"*X",lines:{show:true}}],{legend:{position:"se",backgroundColor:"#D2E8FF"},title:"Grafica de dispersion y la linea mas cercana a los puntos",grid:{hoverable:true,autoHighlight:false},mouse:{track:true,relative:true,position:"n",trackFormatter:function(g){return"(x,y) = ("+g.x+", "+g.y+")"},lineColor:"#e79a70",fillOpacity:0,sensibility:20}
+ 										}
+ 							)
+ 					};
+ 					jQuery(document).ready(function(){graphXY.init()
+ 		}
+);
+</script> 
+</section>
+<script src="js/setup.min.js"></script>  
+<script src="js/jquery.dataTables.min.js"></script>  
+<script src="js/developr.table.min.js"></script> 
+<script src="js/developr.all.min.js"></script>  
+<script src="js/cms.min.js"></script>
+<script type="text/javascript" src="js/MathJax.js?config=AM_HTMLorMML-full"></script>
+<script type="text/javascript" src="js/flotr2.min.js"></script> 
+</body>
+</html>
